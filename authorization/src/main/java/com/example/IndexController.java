@@ -1,6 +1,8 @@
 package com.example;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,9 +74,17 @@ public class IndexController {
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/cuser")
-	public Principal user(Principal user) {
-		return user;
+	@RequestMapping({ "/user", "/me" })
+	public Map<String, String> user(Principal principal) {
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("name", principal.getName());
+		map.put("linbaoji", principal.getName()+"linbaoji");
+		return map;
+	}
+	@ResponseBody
+	@RequestMapping({ "/cuser" })
+	public Principal cuser(Principal principal) {		
+		return principal;
 	}
 
 //	@RequestMapping(value = "/")

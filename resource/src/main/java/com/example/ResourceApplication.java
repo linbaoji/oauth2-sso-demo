@@ -4,8 +4,10 @@ import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -65,4 +67,20 @@ public class ResourceApplication extends ResourceServerConfigurerAdapter {
     RequestDumperFilter requestDumperFilter() {
         return new RequestDumperFilter();
     }
+    
+    
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled=true)
+    public class ResourceConfiguration extends ResourceServerConfigurerAdapter {
+    	
+    	@Override
+        public void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+    	            .antMatchers("/").permitAll()  // 根路径不做授权限制
+    	            .anyRequest().authenticated()  //其他请求都需进行授权认证
+    	        ;
+        }
+    }
+
 }

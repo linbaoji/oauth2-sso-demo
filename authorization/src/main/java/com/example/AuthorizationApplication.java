@@ -11,6 +11,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +42,26 @@ public class AuthorizationApplication {
 	static class LoginConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			
+				http
+             .formLogin().loginPage("/login").permitAll()
+             .and()
+             .requestMatchers()
+             .antMatchers("/", "/login", "/oauth/authorize", "/oauth/confirm_access")
+             .and()
+             .authorizeRequests()
+             .anyRequest().authenticated();
+			 
+		/*	 
+			// @formatter:off
+				http .formLogin().loginPage("/login").permitAll()
+				.and().antMatcher("/**").authorizeRequests().antMatchers("/","/user", "/login**", "/webjars/**").permitAll().anyRequest()
+						.authenticated().and().exceptionHandling()
+						.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")).and().logout()
+						.logoutSuccessUrl("/").permitAll().and().csrf()
+						.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+				// @formatter:on
+*/			 
 			/*http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**", "/webjars/**").permitAll().anyRequest()
 			.authenticated().and().formLogin().loginPage("/login").permitAll().and().requestMatchers()
 					.antMatchers("/", "/login", "/oauth/authorize", "/oauth/confirm_access").and().authorizeRequests()
@@ -58,7 +80,7 @@ public class AuthorizationApplication {
 
 		      
 				 
-				 
+				/* 
 				 http // "/**" 全部要求权限    “/login**” 和 “/webjars/**” 可自由访问
 				 .antMatcher("/**").authorizeRequests().antMatchers("/login**", "/webjars/**").permitAll().anyRequest().authenticated()
 				 	//.and()// 跨域请求攻击 ；详细http://www.jianshu.com/p/672b6390c25f
@@ -75,11 +97,11 @@ public class AuthorizationApplication {
 					.and()
 						.sessionManagement()//关于SESSION 的配置
 			       	 	.maximumSessions(1)
-			       	 	.expiredUrl("/login?expired")
-//					
-//					
-					;
+			       	 	.expiredUrl("/login?expired");
+			       	 	*/
 		}
+		
+		
 	}
 
 	@Bean
@@ -100,5 +122,14 @@ public class AuthorizationApplication {
 		return new RequestDumperFilter();
 	}
 
-
+	@Configuration
+	@EnableResourceServer
+	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http.antMatcher("/me").authorizeRequests().anyRequest().authenticated();
+			// @formatter:on
+		}
+	}
 }
