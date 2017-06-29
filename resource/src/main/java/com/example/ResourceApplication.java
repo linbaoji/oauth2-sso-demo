@@ -1,8 +1,10 @@
 package com.example;
 
 import org.apache.catalina.filters.RequestDumperFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,9 +14,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -28,7 +32,14 @@ import java.util.List;
 @RestController
 public class ResourceApplication extends ResourceServerConfigurerAdapter {
     final List<Message> messages = Collections.synchronizedList(new LinkedList<>());
-
+    
+    
+    @RequestMapping("/user")
+	@ResponseBody
+	public Principal home(Principal user) {
+		return user;
+	}
+    
     @RequestMapping(path = "api/messages", method = RequestMethod.GET)
     List<Message> getMessages(Principal principal) {
         return messages;
@@ -67,20 +78,13 @@ public class ResourceApplication extends ResourceServerConfigurerAdapter {
     RequestDumperFilter requestDumperFilter() {
         return new RequestDumperFilter();
     }
-    
-    
-    @Configuration
-    @EnableGlobalMethodSecurity(prePostEnabled=true)
-    public class ResourceConfiguration extends ResourceServerConfigurerAdapter {
-    	
-    	@Override
-        public void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-    	            .antMatchers("/").permitAll()  // 根路径不做授权限制
-    	            .anyRequest().authenticated()  //其他请求都需进行授权认证
-    	        ;
-        }
-    }
+    @Autowired
+	private ResourceServerProperties sso;
+
+	@Bean
+	public ResourceServerTokenServices myUserInfoTokenServices() {
+		return new CustomUserInfoTokenServices(sso.getUserInfoUri(), sso.getClientId());
+	}
+
 
 }

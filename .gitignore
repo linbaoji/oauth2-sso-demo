@@ -1,3 +1,9 @@
 .idea
 *.iml
 target
+authorization/.settings
+.DS_Store
+ui/.settings
+resource/.settings
+.classpath
+.project

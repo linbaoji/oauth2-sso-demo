@@ -75,11 +75,11 @@ public class IndexController {
 	
 	@ResponseBody
 	@RequestMapping({ "/user", "/me" })
-	public Map<String, String> user(Principal principal) {
+	public Principal user(Principal principal) {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("name", principal.getName());
 		map.put("linbaoji", principal.getName()+"linbaoji");
-		return map;
+		return principal;
 	}
 	@ResponseBody
 	@RequestMapping({ "/cuser" })
