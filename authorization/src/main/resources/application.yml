@@ -1,3 +1,14 @@
+spring:
+  application:
+    name: uaa-service
+  jackson:
+    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+server:
+  port: 9999
+  context-path: /uaa
+logging:
+  level:
+    org.springframework.security: DEBUG
 security:
   user:
     password: password
@@ -9,9 +20,10 @@ security:
       auto-approve-scopes: .*
     authorization:
       check-token-access: permitAll()
-server:
-  port: 9999
-  context-path: /uaa
-logging:
-  level:
-    org.springframework.security: DEBUG
+eureka:
+  instance:
+      hostname: localhost
+      port: 8761
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/

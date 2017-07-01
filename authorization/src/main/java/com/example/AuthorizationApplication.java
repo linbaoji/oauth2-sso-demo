@@ -4,20 +4,25 @@ import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 @EnableAuthorizationServer
 @RestController
 public class AuthorizationApplication {
@@ -48,7 +53,8 @@ public class AuthorizationApplication {
              .antMatchers("/", "/login", "/oauth/authorize", "/oauth/confirm_access")
              .and()
              .authorizeRequests()
-             .anyRequest().authenticated();
+             .anyRequest().authenticated().and().csrf()
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 			 
 		/*	 
 			// @formatter:off
@@ -103,16 +109,23 @@ public class AuthorizationApplication {
 	}
 
 	@Bean
-	 public FilterRegistrationBean testFilterRegistration() {
-	 
-	   FilterRegistrationBean registration = new FilterRegistrationBean();
-	   registration.setFilter(new MemberLoginFilter());
-	   registration.addUrlPatterns("/oauth/authorize");	 
-	   registration.setName("memberLoginFilter");
-	   registration.setOrder(-100);
-	   return registration;
-	 }
-	
+	public FilterRegistrationBean testFilterRegistration() {
+
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		registration.setFilter(new MemberLoginFilter());
+		registration.addUrlPatterns("/oauth/authorize");
+		registration.setName("memberLoginFilter");
+		registration.setOrder(-100);
+		return registration;
+	}
+
+	@Bean
+	FilterRegistrationBean forwardedHeaderFilter() {
+		FilterRegistrationBean filterRegBean = new FilterRegistrationBean();
+		filterRegBean.setFilter(new ForwardedHeaderFilter());
+		filterRegBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+		return filterRegBean;
+	}
 	
 	@Profile("!cloud")
 	@Bean

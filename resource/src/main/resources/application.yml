@@ -1,10 +1,11 @@
 spring:
   application:
-    name: ui-service
+    name: service-Resources
   jackson:
     date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+    
 server:
-  port: 8080
+  port: 7777
 security:
   basic:
     enabled: false
@@ -15,20 +16,20 @@ security:
       access-token-uri: ${auth-server}/oauth/token
       user-authorization-uri: ${auth-server}/oauth/authorize
       scope: read, write
-    resource:    
+    resource:
       user-info-uri: ${auth-server}/me
+
 logging:
   level:
     org.springframework.security: DEBUG
+    
 eureka:
   instance:
-    hostname: localhost
-    port: 8761
     preferIpAddress: true
     leaseRenewalIntervalInSeconds: 1000
     statusPageUrlPath: /admin/info
     healthCheckUrlPath: /admin/health
   client:
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+      defaultZone: http://localhost:8761/eureka/
 auth-server: http://localhost:9999/uaa

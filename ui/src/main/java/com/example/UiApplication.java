@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.RequestEntity;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 @EnableOAuth2Sso
 public class UiApplication {
 
@@ -33,7 +35,9 @@ public class UiApplication {
 	static class HomeController {
 		@Autowired
 		OAuth2RestTemplate restTemplate;
-		@Value("${messages.url:http://localhost:7777}/api")
+		// url: http://localhost:8760/res/
+		@Value("${messages.url:http://localhost:8765/res}/api")
+		//@Value("${messages.url:http://localhost:7777}/api")
 		String messagesUrl;
 
 		@RequestMapping("/")
