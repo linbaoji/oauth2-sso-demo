@@ -1,6 +1,6 @@
 spring:
   application:
-    name: service-Resources
+    name: resource-service
   jackson:
     date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
     
@@ -18,18 +18,37 @@ security:
       scope: read, write
     resource:
       user-info-uri: ${auth-server}/me
+#auth-server: http://localhost:9999/uaa
+auth-server: http://localhost:8765/uaa
 
 logging:
   level:
+    ROOT: INFO
+    se.callista: INFO
+
+    # Get info regarding connection to the cofig server and retries if required
+    org.springframework.cloud.config.client.ConfigServicePropertySourceLocator: INFO
+    org.springframework.retry.support.RetryTemplate: DEBUG
+
+    # Set INFO to see the allocated port
+    org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer: INFO
+    org.springframework.boot.context.embedded.undertow.UndertowEmbeddedServletContainer: INFO
+
+    # Set DEBUG level on Hystrix to get an error message when a fallback method is used.
+    com.netflix.hystrix: DEBUG
+    com.netflix.hystrix.strategy.properties.HystrixPropertiesChainedArchaiusProperty: WARN
     org.springframework.security: DEBUG
     
 eureka:
   instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 1000
-    statusPageUrlPath: /admin/info
-    healthCheckUrlPath: /admin/health
+#    preferIpAddress: true
+#    leaseRenewalIntervalInSeconds: 10
+#    statusPageUrlPath: /info
+#    healthCheckUrlPath: /health
+# 红色的不能开，，可了zuul 抱找不到 分发的服务器
+    hostname: localhost
+    port: 8761
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-auth-server: http://localhost:9999/uaa
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+

@@ -3,12 +3,11 @@ spring:
     name: uaa-service
   jackson:
     date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+debug: false
 server:
   port: 9999
   context-path: /uaa
-logging:
-  level:
-    org.springframework.security: DEBUG
+  
 security:
   user:
     password: password
@@ -27,3 +26,23 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+      
+      
+      
+logging:
+  level:
+    ROOT: WARN
+    se.callista: INFO
+
+    # Get info regarding connection to the cofig server and retries if required
+    org.springframework.cloud.config.client.ConfigServicePropertySourceLocator: INFO
+    org.springframework.retry.support.RetryTemplate: DEBUG
+
+    # Set INFO to see the allocated port
+    org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer: INFO
+    org.springframework.boot.context.embedded.undertow.UndertowEmbeddedServletContainer: INFO
+
+    # Set DEBUG level on Hystrix to get an error message when a fallback method is used.
+    com.netflix.hystrix: DEBUG
+    com.netflix.hystrix.strategy.properties.HystrixPropertiesChainedArchaiusProperty: WARN
+    org.springframework.security: DEBUG
